@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
                         resize(frame(face_rects[i]), dst, Size(100, 100));
                         imshow("face", dst);
                         imwrite(format("./sample/zjx/face_%d.jpg", count), dst);
-                        cout << count << endl;
                   }
             }
             imshow("camera", frame);
