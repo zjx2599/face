@@ -13,6 +13,7 @@
 #include <opencv2/face.hpp>
 
 #define NEED_TO_CREAT_FILE
+#define NEED_PREDICT
 
 using namespace std;
 using namespace cv;
@@ -45,6 +46,7 @@ int main(int argc, char *argv[])
       CascadeClassifier faceDetector;
       faceDetector.load(haar_face_datapath);
       vector<Rect> face_rects;
+      int count = 0;
 
       Mat frame;
       namedWindow("camera", CV_WINDOW_AUTOSIZE);
@@ -52,9 +54,17 @@ int main(int argc, char *argv[])
       {
             flip(frame, frame, 1);
             faceDetector.detectMultiScale(frame, face_rects, 1.01, 1, 0, Size(100, 100), Size(400, 400));
-            for(int i = 0; i < face_rects.size();i++)
+            for (int i = 0; i < face_rects.size(); i++)
             {
-                  rectangle(frame,face_rects[i],Scalar(255,0,0),2,8,0);
+                  rectangle(frame, face_rects[i], Scalar(255, 0, 0), 2, 8, 0);
+                  if (count % 10 == 0)
+                  {
+                        Mat dst;
+                        resize(frame(face_rects[i]), dst, Size(100, 100));
+                        imshow("face", dst);
+                        imwrite(format("./sample/zjx/face_%d.jpg", count), dst);
+                        cout << count << endl;
+                  }
             }
             imshow("camera", frame);
             char c = waitKey(10);
@@ -62,10 +72,12 @@ int main(int argc, char *argv[])
             {
                   break;
             }
+            count++;
       }
 
       capture.release();
 
+#ifndef NEED_PREDICT
       string filename = string("./orl_faces/data.txt");
       ifstream file(filename.c_str(), ios::in);
       if (!file)
@@ -117,6 +129,7 @@ int main(int argc, char *argv[])
        */
       int predictedLabel = model->predict(testSample);
       printf("actual label : %d  predicted label %d\n", testLabel, predictedLabel);
+#endif
 
       return 0;
 }
